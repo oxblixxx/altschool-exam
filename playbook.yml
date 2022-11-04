@@ -110,3 +110,9 @@
       name: php_ini
       state: restarted
     when: php_ini.changed
+
+
+  - name: disable apache configuration
+    tags: apache2
+    shell:
+      cmd: a2dissite 000-default
