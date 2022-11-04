@@ -125,19 +125,26 @@
       clone: yes
       update: yes      
       key_file: ~/.ssh/git
+     
+  - name: check if .env.example exists
+    stat: stat
+      path: /var/www/html/laravel-realworld-example-app/.env.example
+    register: .envexist
 
   - name: rename .env file
-    tags: change_env
+    tags: change_e
     copy:
       remote_src: true
       src: /var/www/html/laravel-realworld-example-app/.env.example
-      dest: /var/www/html/laravel-realworld-example-app/.env
+      dest: /var/www/html/laravel-realworld-example-app/.envy
+    when: .env_exist.exists
 
   - name: remove .env .example
-    tags: remove_env
+    tags: change_en
     file: 
       path: /var/www/html/laravel-realworld-example-app/.env.example
       state: absent    
+      
 
   - name: change file permissions
     tags: file_permission
