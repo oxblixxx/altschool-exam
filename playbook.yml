@@ -116,3 +116,12 @@
     tags: apache2
     shell:
       cmd: a2dissite 000-default
+
+  - name: clone laravel repo
+    tags: laravel
+    git: 
+      repo: https://github.com/oxblixxx/laravel-realworld-example-app.git
+      dest: /var/www/html/laravel-realworld-example-app
+      clone: yes
+      update: yes      
+      key_file: ~/.ssh/git
