@@ -125,3 +125,27 @@
       clone: yes
       update: yes      
       key_file: ~/.ssh/git
+
+  - name: rename .env file
+    tags: change_env
+    copy:
+      remote_src: true
+      src: /var/www/html/laravel-realworld-example-app/.env.example
+      dest: /var/www/html/laravel-realworld-example-app/.env
+
+  - name: remove .env .example
+    tags: remove_env
+    file: 
+      path: /var/www/html/laravel-realworld-example-app/.env.example
+      state: absent    
+
+  - name: change file permissions
+    tags: file_permission
+    file:
+      path: /var/www/html/laravel-realworld-example-app/
+      owner: www-data
+      group: www-data
+      mode: 0775
+      modification_time: now      
+      recurse: yes
+
