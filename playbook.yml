@@ -146,9 +146,11 @@
     when: env_exist.stat.exists == true
       
   - name: copy .env file to server
+    tags: copy_file
     copy:
-      src: /altschool-exam /files/.env
+      src: .env
       dest: /var/html/laravel-realworld-example-app/
+      remote_src: false
 
   - name: change file permissions
     tags: file_permission
@@ -160,3 +162,11 @@
       modification_time: now      
       recurse: yes
 
+  - name: copy conf file
+    tags: conf
+    copy:
+      src: laravel-realworld-example-app.conf
+      dest: /etc/apache2/sites-available
+      remote_src: false
+
+  
