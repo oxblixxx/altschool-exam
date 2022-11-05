@@ -170,3 +170,13 @@
       remote_src: false
 
   
+  - name: enable laravel configuration 
+    tags: apache2
+    shell:
+      cmd: a2ensite laravel-realworld-example-app.conf
+ 
+  - name: restart apache2
+    tags: apache2
+    service: 
+      name: apache2
+      state: started
