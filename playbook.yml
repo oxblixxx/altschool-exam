@@ -1,3 +1,4 @@
+
 ---
 
 - hosts: db
@@ -116,6 +117,12 @@
     tags: apache2
     shell:
       cmd: a2dissite 000-default
+  
+  - name: check if laravel clone exists
+    stat:
+      path: /var/www/html/laravel-realword-example-app
+    register: laravel
+
 
   - name: clone laravel repo
     tags: laravel
@@ -124,27 +131,24 @@
       dest: /var/www/html/laravel-realworld-example-app
       clone: yes
       update: yes      
-      key_file: ~/.ssh/git
-     
+    when: laravel.stat.exists == false
+   
   - name: check if .env.example exists
-    stat: stat
+    stat:
       path: /var/www/html/laravel-realworld-example-app/.env.example
-    register: .envexist
-
-  - name: rename .env file
-    tags: change_e
-    copy:
-      remote_src: true
-      src: /var/www/html/laravel-realworld-example-app/.env.example
-      dest: /var/www/html/laravel-realworld-example-app/.envy
-    when: .env_exist.exists
+    register: env_exist  
 
   - name: remove .env .example
     tags: change_en
     file: 
       path: /var/www/html/laravel-realworld-example-app/.env.example
       state: absent    
+    when: env_exist.stat.exists == true
       
+  - name: copy .env file to server
+    copy:
+      src: /altschool-exam /files/.env
+      dest: /var/html/laravel-realworld-example-app/
 
   - name: change file permissions
     tags: file_permission
@@ -152,7 +156,7 @@
       path: /var/www/html/laravel-realworld-example-app/
       owner: www-data
       group: www-data
-      mode: 0775
+      mode: 0777
       modification_time: now      
       recurse: yes
 
