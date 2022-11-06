@@ -1,6 +1,7 @@
+
 ---
 
-- hosts: tokyo-db
+- hosts: db-1
   become: true
   tasks:
   
@@ -9,22 +10,11 @@
       update_cache: yes
  
   - name: install apache2 && UFW && WGET
-    tags: php
     apt: 
       name:
         - apache2
         - mariadb-server
         - php
-        - php-curl
-        - php-xml
-        - php8.1-zip
-        - php8.1-dev
-        - php-mbstring
-        - php-mysql
-        - php8.1-gd
-        - php8.1-cli
-        - php8.1-common
-        - curl
         - mariadb-client
         - libapache2-mod-php
         - pip
@@ -128,10 +118,6 @@
     tags: apache2
     shell:
       cmd: a2dissite 000-default
-
-  - name: enable rewrite
-    shell:
-      cmd: a2enmod rewrite
   
   - name: check if laravel clone exists
     stat:
@@ -145,7 +131,7 @@
       repo: https://github.com/oxblixxx/laravel-realworld-example-app.git
       dest: /var/www/html/laravel-realworld-example-app
       clone: yes
-      update: no
+      update: yes      
     when: laravel.stat.exists == false
    
   - name: check if .env.example exists
@@ -166,73 +152,6 @@
       src: .env
       dest: /var/www/html/laravel-realworld-example-app/
       remote_src: false
- 
-  - name: copy .htaccess to server
-    tags: copy_file
-    copy:
-      src: .htaccess
-      dest: /var/www/html/laravel-realworld-example-app/
-      remote_src: false    
-
-  - name: download composer
-    tags: composer
-    get_url:
-      url: https://getcomposer.org/installer
-      dest: /tmp/installer
-   
-  - name: run composer installer   
-    tags: composer
-    shell: cat /tmp/installer | php -- --install-dir=/usr/local/bin
-    args:
-      creates: /usr/local/bin/composer
- 
-  - name: move compose.phar
-    tags: composer
-    shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer
-    args:
-        creates: /usr/local/bin/composer
-
-  - name: make composer executable
-    file:
-      path: /usr/local/bin/composer
-      mode: a+x
-      state: file
-
-  - name: composer update
-    tags: composer_o
-    shell:
-      cmd: composer update --no-interaction
-      chdir: /var/www/html/laravel-realworld-example-app/
-
-  - name: composer install
-    tags: composer_o
-    shell:
-      cmd: composer install --no-interaction
-      chdir: /var/www/html/laravel-realworld-example-app/
-
-  - name: key generate
-    tags: artisan
-    shell:
-      cmd: php artisan key:generate
-      chdir: /var/www/html/laravel-realworld-example-app/
- 
-  - name: php artisan migrate seed
-    tags: artisan
-    shell:
-      cmd: php artisan config:cache
-      chdir: /var/www/html/laravel-realworld-example-app/
-
-  - name: php artisan
-    tags: artisan_r
-    shell:
-      cmd: php artisan migrate:refresh
-      chdir: /var/www/html/laravel-realworld-example-app/
- 
-  - name: php artisan migrate seed
-    tags: artisan_r
-    shell:
-      cmd: php artisan migrate:refresh --seed
-      chdir: /var/www/html/laravel-realworld-example-app/
 
   - name: change file permissions
     tags: file_permission
@@ -240,7 +159,7 @@
       path: /var/www/html/laravel-realworld-example-app/
       owner: www-data
       group: www-data
-      mode: 0775
+      mode: 0777
       modification_time: now      
       recurse: yes
 
@@ -252,12 +171,17 @@
       remote_src: false
 
   
-  - name: enable laravel configuration
+  - name: enable laravel configuration 
     tags: apache2
     shell:
       cmd: a2ensite laravel-realworld-example-app.conf
-
-  - name: restart apache
-    tags: apache2
+  
+  - name: install composer
+    tags: composer install
     shell:
-      cmd: systemctl restart apache2 
+        
+  - name: restart apache2
+    tags: apache2
+    service: 
+      name: apache2
+      state: started

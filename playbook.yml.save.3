@@ -1,6 +1,7 @@
+
 ---
 
-- hosts: tokyo-db
+- hosts: db-3
   become: true
   tasks:
   
@@ -199,40 +200,25 @@
       state: file
 
   - name: composer update
-    tags: composer_o
-    shell:
-      cmd: composer update --no-interaction
+    tags: composer
+    shell: composer update
+    args:
       chdir: /var/www/html/laravel-realworld-example-app/
 
   - name: composer install
-    tags: composer_o
-    shell:
-      cmd: composer install --no-interaction
+    tags: composer
+    shell: composer install
+    args:
       chdir: /var/www/html/laravel-realworld-example-app/
 
-  - name: key generate
-    tags: artisan
-    shell:
-      cmd: php artisan key:generate
-      chdir: /var/www/html/laravel-realworld-example-app/
+ - name: php artisan
+   tags: artisan
+   shell: php artisan config:cache
+   args:
+     chdir: /var/www/html/laravel-realworld-example-app/
  
-  - name: php artisan migrate seed
-    tags: artisan
-    shell:
-      cmd: php artisan config:cache
-      chdir: /var/www/html/laravel-realworld-example-app/
+ - name:   
 
-  - name: php artisan
-    tags: artisan_r
-    shell:
-      cmd: php artisan migrate:refresh
-      chdir: /var/www/html/laravel-realworld-example-app/
- 
-  - name: php artisan migrate seed
-    tags: artisan_r
-    shell:
-      cmd: php artisan migrate:refresh --seed
-      chdir: /var/www/html/laravel-realworld-example-app/
 
   - name: change file permissions
     tags: file_permission
@@ -240,7 +226,7 @@
       path: /var/www/html/laravel-realworld-example-app/
       owner: www-data
       group: www-data
-      mode: 0775
+      mode: 0777
       modification_time: now      
       recurse: yes
 
@@ -256,8 +242,3 @@
     tags: apache2
     shell:
       cmd: a2ensite laravel-realworld-example-app.conf
-
-  - name: restart apache
-    tags: apache2
-    shell:
-      cmd: systemctl restart apache2 
