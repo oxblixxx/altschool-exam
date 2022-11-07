@@ -1,6 +1,6 @@
 ---
 
-- hosts: tokyo-db
+- hosts: db
   become: true
   tasks:
   
@@ -135,7 +135,7 @@
   
   - name: check if laravel clone exists
     stat:
-      path: /var/www/html/laravel-realword-example-app
+      path: /var/www/laravel-realword-example-app
     register: laravel
 
 
@@ -143,20 +143,20 @@
     tags: laravel
     git: 
       repo: https://github.com/oxblixxx/laravel-realworld-example-app.git
-      dest: /var/www/html/laravel-realworld-example-app
+      dest: /var/www/laravel-realworld-example-app
       clone: yes
       update: no
     when: laravel.stat.exists == false
    
   - name: check if .env.example exists
     stat:
-      path: /var/www/html/laravel-realworld-example-app/.env.example
+      path: /var/www/laravel-realworld-example-app/.env.example
     register: env_exist  
 
   - name: remove .env .example
     tags: change_en
     file: 
-      path: /var/www/html/laravel-realworld-example-app/.env.example
+      path: /var/www/laravel-realworld-example-app/.env.example
       state: absent    
     when: env_exist.stat.exists == true
       
@@ -164,14 +164,14 @@
     tags: copy_file
     copy:
       src: .env
-      dest: /var/www/html/laravel-realworld-example-app/
+      dest: /var/www/laravel-realworld-example-app/
       remote_src: false
  
   - name: copy .htaccess to server
     tags: copy_file
     copy:
       src: .htaccess
-      dest: /var/www/html/laravel-realworld-example-app/
+      dest: /var/www/laravel-realworld-example-app/
       remote_src: false    
 
   - name: download composer
@@ -202,42 +202,42 @@
     tags: composer_o
     shell:
       cmd: composer update --no-interaction
-      chdir: /var/www/html/laravel-realworld-example-app/
+      chdir: /var/www/laravel-realworld-example-app/
 
   - name: composer install
     tags: composer_o
     shell:
       cmd: composer install --no-interaction
-      chdir: /var/www/html/laravel-realworld-example-app/
+      chdir: /var/www/laravel-realworld-example-app/
 
   - name: key generate
     tags: artisan
     shell:
       cmd: php artisan key:generate
-      chdir: /var/www/html/laravel-realworld-example-app/
+      chdir: /var/www/laravel-realworld-example-app/
  
   - name: php artisan migrate seed
     tags: artisan
     shell:
       cmd: php artisan config:cache
-      chdir: /var/www/html/laravel-realworld-example-app/
+      chdir: /var/www/laravel-realworld-example-app/
 
   - name: php artisan
     tags: artisan_r
     shell:
       cmd: php artisan migrate:refresh
-      chdir: /var/www/html/laravel-realworld-example-app/
+      chdir: /var/www/laravel-realworld-example-app/
  
   - name: php artisan migrate seed
     tags: artisan_r
     shell:
       cmd: php artisan migrate:refresh --seed
-      chdir: /var/www/html/laravel-realworld-example-app/
+      chdir: /var/www/laravel-realworld-example-app/
 
   - name: change file permissions
     tags: file_permission
     file:
-      path: /var/www/html/laravel-realworld-example-app/
+      path: /var/www/laravel-realworld-example-app/
       owner: www-data
       group: www-data
       mode: 0775

@@ -21,6 +21,7 @@ sleep 3
 
 # Distro upgrade
 update() {
+  sudo apt install -y curl apt-transport-https
   sudo apt update -y
   sudo apt upgrade -y
 }
@@ -167,6 +168,65 @@ echo "Postgresql started"
 echo "==================="
 
 
-# Create conf for postgress
+# Create user
+ 
+sudo -u postgress createuser <Olamide>
 
-sed -i "58 s/^/listen_addresses = '*'            #What address(es) to listen to "  /etc/postgresql/15/main/postgres.sql
+sleep 2
+
+echo "==================="
+echo " User     created   
+echo "==================="
+
+sleep 4
+
+
+# Creating Database
+
+sleep 2
+
+
+sudo -u postgres createdb <myserverdb>
+
+
+sleep 3
+
+
+
+echo "==================="
+echo "database   created "
+echo "==================="
+
+
+sleep 3
+
+
+# give user password
+
+
+sleep 3
+
+
+
+sudo -u postgres psql 
+
+sleep 2 
+
+echo " Enter your password"
+
+
+sleep 3
+
+
+
+# Add priviledges
+ 
+psql=# grannt all priviledges on myserverdb to Olamide
+
+
+
+
+
+echo "==================="
+echo "Postgresql     done"
+echo "==================="
